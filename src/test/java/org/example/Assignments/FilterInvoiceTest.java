@@ -33,4 +33,34 @@ public class FilterInvoiceTest {
             assertTrue(invoice.getValue() < 100, "All invoices should have a value less than 100");
         }
     }
+
+    @Test
+    void filterInvoiceStubbedTest() {
+        // Create a stub for QueryInvoicesDAO
+        QueryInvoicesDAO stubDao = new QueryInvoicesDAO(null) {
+            @Override
+            public List<Invoice> all() {
+                // Return a predefined list of invoices for testing
+                return List.of(
+                        new Invoice("Joe", 50),   // Low-value invoice
+                        new Invoice("Jack", 150),
+                        new Invoice("Jill", 99),   // Low-value invoice
+                        new Invoice("Adam", 100)
+                );
+            }
+        };
+
+        // Create an instance of FilterInvoice with the stubbed DAO
+        FilterInvoice filterInvoice = new FilterInvoice(stubDao);
+
+        // Call the method under test
+        List<Invoice> result = filterInvoice.lowValueInvoices();
+
+        // Verify the result
+        assertEquals(2, result.size(), "There should be 2 low-value invoices");
+
+        // Verify the values of the filtered invoices
+        assertEquals(50, result.get(0).getValue(), "First invoice should have a value of 50");
+        assertEquals(99, result.get(1).getValue(), "Second invoice should have a value of 99");
+    }
 }
